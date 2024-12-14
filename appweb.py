@@ -9,17 +9,26 @@ import os
 
 # Download the model from Hugging Face Hub
 def download_model_from_huggingface():
-    repo_id = "Yashas2477/SE2_og"  # Replace with your Hugging Face repository
+    repo_id = "your-username/your-repo"  # Replace with your Hugging Face repository
     filename = "face_recogniser.pkl"  # Replace with your model filename
 
-    # Download the model file to the current directory
+    st.info("Downloading model from Hugging Face...")
     model_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir="model_cache")
+    st.success("Model downloaded successfully!")
     return model_path
 
 # Load the model
 if not os.path.exists('face_recogniser.pkl'):
-    model_path = download_model_from_huggingface()
-    os.rename(model_path, 'face_recogniser.pkl')
+    try:
+        model_path = download_model_from_huggingface()
+        os.rename(model_path, 'face_recogniser.pkl')
+    except Exception as e:
+        st.error(f"Failed to download the model: {e}")
+        st.stop()
+
+if not os.path.exists('face_recogniser.pkl'):
+    st.error("Model file 'face_recogniser.pkl' not found. Please ensure the file exists or the Hugging Face repo is configured correctly.")
+    st.stop()
 
 face_recogniser = joblib.load('face_recogniser.pkl')
 preprocess = preprocessing.ExifOrientationNormalize()
