@@ -9,7 +9,7 @@ import os
 
 # Download the model from Hugging Face Hub
 def download_model_from_huggingface():
-    repo_id = "your-username/your-repo"  # Replace with your Hugging Face repository
+    repo_id = "Yashas2477/SE2_og"  # Replace with your Hugging Face repository
     filename = "face_recogniser.pkl"  # Replace with your model filename
 
     st.info("Downloading model from Hugging Face...")
