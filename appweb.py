@@ -5,48 +5,38 @@ import joblib
 from PIL import Image
 from face_recognition import preprocessing
 from huggingface_hub import hf_hub_download
-import os
-import shutil
 
-# Download the model from Hugging Face Hub
+# Define the Hugging Face repository details
+REPO_ID = "Yashas2477/SE2_og"  # Replace with your Hugging Face repository
+FILENAME = "face_recogniser.pkl"  # Replace with your model filename
+
+# Cache the model download
+@st.cache_data
 def download_model_from_huggingface():
-    repo_id = "Yashas2477/SE2_og"  # Replace with your Hugging Face repository
-    filename = "face_recogniser.pkl"  # Replace with your model filename
-
     st.info("Downloading model from Hugging Face...")
     try:
-        model_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir="model_cache")
+        model_path = hf_hub_download(repo_id=REPO_ID, filename=FILENAME, cache_dir="model_cache")
         st.success("Model downloaded successfully!")
         return model_path
     except Exception as e:
         st.error(f"Error downloading model: {e}")
         raise
 
-# Load the model
-if not os.path.exists('face_recogniser.pkl'):
+# Cache the model loading
+@st.cache_resource
+def load_model():
     try:
         model_path = download_model_from_huggingface()
-        st.write(f"Downloaded model path: {model_path}")
-
-        # Move the model to the current working directory
-        destination_path = os.path.join(os.getcwd(), 'face_recogniser.pkl')
-        shutil.move(model_path, destination_path)
-        st.success("Model downloaded and moved successfully!")
-
-        # Verify the file move
-        if not os.path.exists(destination_path):
-            st.error(f"Model file not found at {destination_path} after moving.")
-            st.stop()
+        st.write(f"Model loaded from: {model_path}")
+        model = joblib.load(model_path)
+        st.success("Model loaded successfully!")
+        return model
     except Exception as e:
-        st.error(f"Failed to download or move the model: {e}")
-        st.stop()
+        st.error(f"Error loading model: {e}")
+        raise
 
-# Verify the model file
-if not os.path.exists('face_recogniser.pkl'):
-    st.error("Model file 'face_recogniser.pkl' not found. Please ensure the file exists or the Hugging Face repo is configured correctly.")
-    st.stop()
-
-face_recogniser = joblib.load('face_recogniser.pkl')
+# Load the cached model
+face_recogniser = load_model()
 preprocess = preprocessing.ExifOrientationNormalize()
 
 # Streamlit app
