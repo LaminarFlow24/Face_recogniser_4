@@ -6,6 +6,7 @@ from PIL import Image
 from face_recognition import preprocessing
 from huggingface_hub import hf_hub_download
 import os
+import shutil
 
 # Download the model from Hugging Face Hub
 def download_model_from_huggingface():
@@ -21,11 +22,14 @@ def download_model_from_huggingface():
 if not os.path.exists('face_recogniser.pkl'):
     try:
         model_path = download_model_from_huggingface()
-        os.rename(model_path, 'face_recogniser.pkl')
+        st.write(f"Downloaded model path: {model_path}")
+        shutil.move(model_path, 'face_recogniser.pkl')
+        st.success("Model downloaded and moved successfully!")
     except Exception as e:
-        st.error(f"Failed to download the model: {e}")
+        st.error(f"Failed to download or move the model: {e}")
         st.stop()
 
+# Verify the model file
 if not os.path.exists('face_recogniser.pkl'):
     st.error("Model file 'face_recogniser.pkl' not found. Please ensure the file exists or the Hugging Face repo is configured correctly.")
     st.stop()
