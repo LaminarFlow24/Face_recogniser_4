@@ -10,21 +10,33 @@ import shutil
 
 # Download the model from Hugging Face Hub
 def download_model_from_huggingface():
-    repo_id = "Yashas2477/SE2_og"  # Replace with your Hugging Face repository
+    repo_id = "your-username/your-repo"  # Replace with your Hugging Face repository
     filename = "face_recogniser.pkl"  # Replace with your model filename
 
     st.info("Downloading model from Hugging Face...")
-    model_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir="model_cache")
-    st.success("Model downloaded successfully!")
-    return model_path
+    try:
+        model_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir="model_cache")
+        st.success("Model downloaded successfully!")
+        return model_path
+    except Exception as e:
+        st.error(f"Error downloading model: {e}")
+        raise
 
 # Load the model
 if not os.path.exists('face_recogniser.pkl'):
     try:
         model_path = download_model_from_huggingface()
         st.write(f"Downloaded model path: {model_path}")
-        shutil.move(model_path, 'face_recogniser.pkl')
+
+        # Move the model to the current working directory
+        destination_path = os.path.join(os.getcwd(), 'face_recogniser.pkl')
+        shutil.move(model_path, destination_path)
         st.success("Model downloaded and moved successfully!")
+
+        # Verify the file move
+        if not os.path.exists(destination_path):
+            st.error(f"Model file not found at {destination_path} after moving.")
+            st.stop()
     except Exception as e:
         st.error(f"Failed to download or move the model: {e}")
         st.stop()
